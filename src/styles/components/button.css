@@ -1,0 +1,142 @@
+/* Button Component Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  outline: none;
+  font-family: inherit;
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Button Sizes */
+.btn-small {
+  padding: 8px 16px;
+  font-size: 14px;
+  min-height: 36px;
+}
+
+.btn-medium {
+  padding: 12px 24px;
+  font-size: 16px;
+  min-height: 44px;
+}
+
+.btn-large {
+  padding: 16px 32px;
+  font-size: 18px;
+  min-height: 52px;
+  border-radius: 12px;
+}
+
+/* Button Variants */
+.btn-primary {
+  background: linear-gradient(135deg, #00acc1 0%, #26c6da 100%);
+  color: white;
+}
+
+.btn-primary:hover:not(.btn-disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 172, 193, 0.3);
+}
+
+.btn-primary:active:not(.btn-disabled) {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover:not(.btn-disabled) {
+  background: #4b5563;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #00acc1;
+  border: 2px solid #00acc1;
+}
+
+.btn-outline:hover:not(.btn-disabled) {
+  background: #00acc1;
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+}
+
+.btn-ghost:hover:not(.btn-disabled) {
+  background: rgba(107, 114, 128, 0.1);
+  color: #374151;
+}
+
+/* Button States */
+.btn-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn-loading {
+  cursor: wait;
+}
+
+.btn-loading .btn-content {
+  opacity: 0.7;
+}
+
+.btn-content-loading {
+  opacity: 0.7;
+}
+
+/* Loading spinner inside button */
+.btn .loading-container {
+  margin: 0;
+}
+
+.btn .loading-spinner {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.btn-small .loading-spinner {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-large .loading-spinner {
+  width: 18px;
+  height: 18px;
+}
+
+/* Specific button classes for app */
+.send-otp-btn {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.verify-btn {
+  width: 100%;
+}
+
+.resend-btn {
+  margin-top: 8px;
+  font-size: 14px;
+}

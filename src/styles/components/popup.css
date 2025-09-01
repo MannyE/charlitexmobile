@@ -1,0 +1,149 @@
+/* Popup Component Styles */
+.popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.popup {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  animation: popupSlideIn 0.3s ease-out;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px 0 24px;
+}
+
+.popup-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.popup-close:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.popup-content {
+  padding: 16px 24px 24px 24px;
+}
+
+.popup-message {
+  margin: 0;
+  color: #4a4a4a;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Popup Types */
+.popup-error {
+  border-top: 4px solid #e53e3e;
+}
+
+.popup-error .popup-title {
+  color: #e53e3e;
+}
+
+.popup-success {
+  border-top: 4px solid #38a169;
+}
+
+.popup-success .popup-title {
+  color: #38a169;
+}
+
+.popup-warning {
+  border-top: 4px solid #d69e2e;
+}
+
+.popup-warning .popup-title {
+  color: #d69e2e;
+}
+
+.popup-info {
+  border-top: 4px solid #3182ce;
+}
+
+.popup-info .popup-title {
+  color: #3182ce;
+}
+
+/* Rate limit specific styling */
+.popup.rate-limit-popup {
+  border-top: 4px solid #f56565;
+}
+
+.popup.rate-limit-popup .popup-title {
+  color: #f56565;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 640px) {
+  .popup-backdrop {
+    padding: 16px;
+  }
+
+  .popup {
+    max-width: none;
+    width: 100%;
+  }
+
+  .popup-header {
+    padding: 16px 20px 0 20px;
+  }
+
+  .popup-content {
+    padding: 12px 20px 20px 20px;
+  }
+
+  .popup-title {
+    font-size: 18px;
+  }
+}

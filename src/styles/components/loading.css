@@ -1,0 +1,68 @@
+/* Loading Component Styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+
+.loading-spinner {
+  border: 3px solid rgba(0, 172, 193, 0.1);
+  border-top: 3px solid #00acc1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.loading-medium {
+  width: 32px;
+  height: 32px;
+}
+
+.loading-large {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+.loading-message {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading states for specific components */
+.btn .loading-container {
+  margin: 0;
+}
+
+.btn .loading-message {
+  display: none;
+}
+
+/* Inline loading (for buttons) */
+.loading-inline {
+  display: inline-flex;
+  margin: 0;
+}
+
+.loading-inline .loading-message {
+  margin-left: 8px;
+}
