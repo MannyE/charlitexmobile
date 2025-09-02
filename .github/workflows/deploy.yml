@@ -1,0 +1,61 @@
+name: Deploy CharlitexMobileConnect to HostPapa
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run ESLint
+        run: npm run lint
+
+      - name: 🏗️ Build for production
+        run: npm run build:prod
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_APP_URL: ${{ secrets.VITE_APP_URL }}
+
+      - name: 📁 Verify build output
+        run: |
+          echo "Build completed successfully!"
+          ls -la dist/
+          echo "Build size:"
+          du -sh dist/
+
+      - name: 🚀 Deploy to HostPapa via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /public_html/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env*
+            **/.DS_Store
+          log-level: verbose
+
+      - name: ✅ Deployment Success
+        run: |
+          echo "🎉 CharlitexMobileConnect deployed successfully!"
+          echo "🌐 Visit your website at: ${{ secrets.VITE_APP_URL }}"
