@@ -32,25 +32,41 @@ export const testDatabaseConnection = async () => {
  */
 export const checkUserExists = async (phoneNumber) => {
   try {
-    console.log('Checking if user exists:', phoneNumber);
+    console.log('🔍 DEBUGGING: Checking if user exists for phone:', phoneNumber);
 
     const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
+    console.log('🔍 DEBUGGING: Database query result:', { 
+      phoneNumber,
+      data, 
+      error,
+      errorCode: error?.code 
+    });
+
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows found
-      console.error('Error checking user existence:', error);
+      console.error('❌ DEBUGGING: Database error (not PGRST116):', error);
       return {
         exists: false,
         error: getDatabaseErrorMessage(error),
       };
     }
 
+    if (error && error.code === 'PGRST116') {
+      console.log('✅ DEBUGGING: PGRST116 - No rows found (user does NOT exist)');
+      return { exists: false };
+    }
+
     const exists = !!data;
-    console.log(`User ${exists ? 'exists' : 'does not exist'} in waitlist`);
+    console.log(`📋 DEBUGGING: Final result - User ${exists ? 'EXISTS' : 'does NOT exist'} in waitlist`);
+    
+    if (exists) {
+      console.log('🎯 DEBUGGING: User found! Data:', data);
+    }
 
     return { exists };
   } catch (err) {
-    console.error('Unexpected error checking user existence:', err);
+    console.error('💥 DEBUGGING: Unexpected error checking user existence:', err);
     return {
       exists: false,
       error: ERROR_MESSAGES.DATABASE.NETWORK_ERROR,
