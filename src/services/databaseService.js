@@ -8,11 +8,9 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const checkUserExists = async (phoneNumber) => {
   try {
-    // Normalize phone number format (ensure it starts with +)
-    const normalizedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-    console.log('🔍 Checking if user exists:', normalizedPhone);
+    console.log('🔍 Checking if user exists:', phoneNumber);
 
-    const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', normalizedPhone).single();
+    const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows found
@@ -24,7 +22,7 @@ export const checkUserExists = async (phoneNumber) => {
     }
 
     const exists = !!data;
-    console.log(`📋 User ${exists ? 'EXISTS' : 'does NOT exist'} in waitlist for ${normalizedPhone}`);
+    console.log(`📋 User ${exists ? 'EXISTS' : 'does NOT exist'} in waitlist for ${phoneNumber}`);
 
     return { exists };
   } catch (err) {
@@ -44,16 +42,14 @@ export const checkUserExists = async (phoneNumber) => {
  */
 export const addUserToWaitlist = async (phoneNumber, userId) => {
   try {
-    // Normalize phone number format (ensure it starts with +)
-    const normalizedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-    console.log('➕ Adding user to waitlist:', { phoneNumber: normalizedPhone, userId });
+    console.log('➕ Adding user to waitlist:', { phoneNumber, userId });
 
     const { data, error } = await supabase
       .from('waitlist')
       .insert([
         {
           user_id: userId,
-          phone: normalizedPhone,
+          phone: phoneNumber,
           consent: true,
         },
       ])
