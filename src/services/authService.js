@@ -8,27 +8,65 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const sendOTP = async (phoneNumber) => {
   try {
-    // console.log('Sending OTP to:', phoneNumber);
+    console.log('📱 Sending OTP to:', phoneNumber);
 
-    const { data, error } = await supabase.auth.signInWithOtp({
-      phone: phoneNumber,
+    // Ensure phone number is in correct format for Supabase Auth
+    let formattedPhone = phoneNumber;
+    
+    // Supabase typically expects E.164 format: +1234567890
+    if (!formattedPhone.startsWith('+')) {
+      formattedPhone = `+${formattedPhone}`;
+    }
+    
+    console.log('📞 Formatted phone number:', formattedPhone);
+
+    const { data, error, status } = await supabase.auth.signInWithOtp({
+      phone: formattedPhone,
     });
 
     if (error) {
-      // console.error('OTP send error:', error);
+      console.error('❌ OTP send error:', {
+        error,
+        status,
+        phoneNumber: formattedPhone,
+        originalPhone: phoneNumber
+      });
+      
+      // For 422 errors, try different phone number formats
+      if (status === 422) {
+        console.log('🔄 422 error - trying alternative phone formats...');
+        
+        // Try without country code if it's a US number
+        if (formattedPhone.startsWith('+1') && formattedPhone.length === 12) {
+          const fallbackPhone = formattedPhone; // Keep the same format for now
+          console.log('📞 Fallback format attempt:', fallbackPhone);
+          
+          const { data: fallbackData, error: fallbackError } = await supabase.auth.signInWithOtp({
+            phone: fallbackPhone,
+          });
+          
+          if (!fallbackError) {
+            console.log('✅ Fallback OTP sent successfully');
+            return { success: true, data: fallbackData };
+          }
+          
+          console.error('❌ Fallback also failed:', fallbackError);
+        }
+      }
+      
       return {
         success: false,
         error: getOTPErrorMessage(error),
       };
     }
 
-    // console.log('OTP sent successfully:', data);
+    console.log('✅ OTP sent successfully to:', formattedPhone);
     return {
       success: true,
       data,
     };
-  } catch {
-    // console.error('Unexpected error sending OTP:', err);
+  } catch (err) {
+    console.error('💥 Unexpected error sending OTP:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.API.GENERIC_ERROR,
@@ -113,6 +151,17 @@ export const getCurrentUser = async () => {
  */
 const getOTPErrorMessage = (error) => {
   const message = error.message?.toLowerCase() || '';
+  const errorCode = error.code || '';
+  
+  console.log('🔍 Analyzing OTP error:', { message, errorCode, error });
+
+  // Handle 422 errors specifically (Unprocessable Content)
+  if (message.includes('unprocessable') || errorCode === '422') {
+    if (message.includes('phone')) {
+      return 'Invalid phone number format. Please check your number and try again.';
+    }
+    return 'Phone number format not supported. Please verify your number is correct.';
+  }
 
   if (message.includes('rate') || message.includes('limit') || message.includes('many')) {
     // Extract rate limit time if available
@@ -129,9 +178,15 @@ const getOTPErrorMessage = (error) => {
   }
 
   if (message.includes('twilio') || message.includes('sms')) {
-    return ERROR_MESSAGES.API.TWILIO_ERROR;
+    return 'SMS service error. Please verify your phone number and try again.';
   }
 
+  if (message.includes('invalid') && message.includes('phone')) {
+    return 'Invalid phone number. Please check the format and try again.';
+  }
+
+  // Provide more context for debugging
+  console.warn('🤔 Unknown OTP error type:', { message, errorCode });
   return ERROR_MESSAGES.API.GENERIC_ERROR;
 };
 
