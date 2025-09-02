@@ -2,6 +2,30 @@ import { supabase } from '../config/supabase';
 import { ERROR_MESSAGES } from '../constants/validation';
 
 /**
+ * Test database connectivity
+ * @returns {Promise<Object>} - { success: boolean, error?: string }
+ */
+export const testDatabaseConnection = async () => {
+  try {
+    console.log('🔗 Testing database connection...');
+    
+    // Simple query to test connectivity
+    const { data, error, status } = await supabase.from('waitlist').select('count', { count: 'exact', head: true });
+    
+    if (error) {
+      console.error('❌ Database connection test failed:', { error, status });
+      return { success: false, error: error.message };
+    }
+    
+    console.log('✅ Database connection successful, table has', data?.length || 0, 'records');
+    return { success: true };
+  } catch (err) {
+    console.error('💥 Database connection test error:', err);
+    return { success: false, error: err.message };
+  }
+};
+
+/**
  * Check if user exists in waitlist
  * @param {string} phoneNumber - Full international phone number
  * @returns {Promise<Object>} - { exists: boolean, error?: string }
@@ -10,15 +34,47 @@ export const checkUserExists = async (phoneNumber) => {
   try {
     console.log('🔍 Checking if user exists:', phoneNumber);
 
-    const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
+    const { data, error, status } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
-    if (error && error.code !== 'PGRST116') {
-      // PGRST116 = no rows found
-      console.error('❌ Error checking user existence:', error);
-      return {
-        exists: false,
-        error: getDatabaseErrorMessage(error),
-      };
+    console.log('📊 Database query result:', { data, error, status });
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // PGRST116 = no rows found (this is expected for new users)
+        console.log('✅ User not found in waitlist (new user)');
+        return { exists: false };
+      } else {
+        // Any other error (including 406) is a real problem
+        console.error('❌ Database query error:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          status: status
+        });
+        
+        // For 406 errors, let's try without the + sign as fallback
+        if (status === 406 && phoneNumber.startsWith('+')) {
+          console.log('🔄 Trying fallback query without + sign...');
+          const fallbackPhone = phoneNumber.substring(1);
+          const { data: fallbackData, error: fallbackError } = await supabase
+            .from('waitlist')
+            .select('phone')
+            .eq('phone', fallbackPhone)
+            .single();
+            
+          if (!fallbackError || fallbackError.code === 'PGRST116') {
+            const exists = !!fallbackData;
+            console.log(`📋 Fallback query: User ${exists ? 'EXISTS' : 'does NOT exist'} for ${fallbackPhone}`);
+            return { exists };
+          }
+        }
+        
+        return {
+          exists: false,
+          error: getDatabaseErrorMessage(error),
+        };
+      }
     }
 
     const exists = !!data;
