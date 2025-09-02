@@ -191,7 +191,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-production]
     if: always() && needs.build-production.outputs.deployment-ready == 'true'
-    environment: ${{ inputs.environment || 'Configure FTP' }}
+    environment: ${{ inputs.environment || 'production' }}
 
     steps:
       - name: 🚚 Checkout Repository
