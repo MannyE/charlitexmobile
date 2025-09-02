@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
 /**
  * Health Check Script for CharlitexMobileConnect
  * Tests website functionality after deployment

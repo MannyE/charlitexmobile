@@ -18,7 +18,7 @@ const OTPmodal = ({ isOpen, onClose, onSuccess, phoneNumber, appName = 'Charlite
         inputRefs.current[0]?.focus();
       }, 100);
     }
-  }, [isOpen, resetOTP]);
+  }, [isOpen, resetOTP, inputRefs]);
 
   // Handle successful OTP verification
   const handleOTPVerify = async () => {

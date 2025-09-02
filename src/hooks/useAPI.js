@@ -47,7 +47,7 @@ export const useAPI = () => {
         setShowApiErrorPopup(true);
         return { success: false, error: otpResult.error };
       }
-    } catch (err) {
+    } catch {
       const errorMsg = 'Something went wrong. Please try again.';
       setError(errorMsg);
       setShowApiErrorPopup(true);
@@ -83,7 +83,7 @@ export const useAPI = () => {
         setError(result.error);
         return { success: false, error: result.error };
       }
-    } catch (err) {
+    } catch {
       const errorMsg = 'Failed to join waitlist. Please contact support.';
       setError(errorMsg);
       return { success: false, error: errorMsg };

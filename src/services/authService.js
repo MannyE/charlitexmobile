@@ -8,27 +8,27 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const sendOTP = async (phoneNumber) => {
   try {
-    console.log('Sending OTP to:', phoneNumber);
+    // console.log('Sending OTP to:', phoneNumber);
 
     const { data, error } = await supabase.auth.signInWithOtp({
       phone: phoneNumber,
     });
 
     if (error) {
-      console.error('OTP send error:', error);
+      // console.error('OTP send error:', error);
       return {
         success: false,
         error: getOTPErrorMessage(error),
       };
     }
 
-    console.log('OTP sent successfully:', data);
+    // console.log('OTP sent successfully:', data);
     return {
       success: true,
       data,
     };
-  } catch (err) {
-    console.error('Unexpected error sending OTP:', err);
+  } catch {
+    // console.error('Unexpected error sending OTP:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.API.GENERIC_ERROR,
@@ -44,7 +44,7 @@ export const sendOTP = async (phoneNumber) => {
  */
 export const verifyOTP = async (phoneNumber, token) => {
   try {
-    console.log('Verifying OTP for:', phoneNumber);
+    // console.log('Verifying OTP for:', phoneNumber);
 
     const { data, error } = await supabase.auth.verifyOtp({
       phone: phoneNumber,
@@ -53,20 +53,20 @@ export const verifyOTP = async (phoneNumber, token) => {
     });
 
     if (error) {
-      console.error('OTP verification error:', error);
+      // console.error('OTP verification error:', error);
       return {
         success: false,
         error: getOTPVerificationErrorMessage(error),
       };
     }
 
-    console.log('OTP verified successfully:', data);
+    // console.log('OTP verified successfully:', data);
     return {
       success: true,
       data,
     };
-  } catch (err) {
-    console.error('Unexpected error verifying OTP:', err);
+  } catch {
+    // console.error('Unexpected error verifying OTP:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.OTP.INVALID_CODE,
@@ -86,7 +86,7 @@ export const getCurrentUser = async () => {
     } = await supabase.auth.getUser();
 
     if (error) {
-      console.error('Error getting current user:', error);
+      // console.error('Error getting current user:', error);
       return {
         success: false,
         error: ERROR_MESSAGES.DATABASE.AUTH_REQUIRED,
@@ -97,8 +97,8 @@ export const getCurrentUser = async () => {
       success: true,
       user,
     };
-  } catch (err) {
-    console.error('Unexpected error getting user:', err);
+  } catch {
+    // console.error('Unexpected error getting user:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.DATABASE.AUTH_REQUIRED,

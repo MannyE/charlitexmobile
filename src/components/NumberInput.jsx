@@ -208,7 +208,7 @@ const NumberInput = () => {
   //         setRemainingCooldown(Math.ceil((cooldownEnd - now) / 1000));
   //       }
   //     } catch (error) {
-  //       console.error('Error loading rate limit data:', error);
+  //       // console.error('Error loading rate limit data:', error);
   //       localStorage.removeItem(RATE_LIMIT_CONFIG.STORAGE_KEY);
   //     }
   //   }
@@ -234,7 +234,7 @@ const NumberInput = () => {
   //             data.cooldownEnd = null;
   //             localStorage.setItem(RATE_LIMIT_CONFIG.STORAGE_KEY, JSON.stringify(data));
   //           } catch (error) {
-  //             console.error('Error updating rate limit data:', error);
+  //             // console.error('Error updating rate limit data:', error);
   //           }
   //         }
   //       } else {
@@ -397,18 +397,18 @@ const NumberInput = () => {
   // Check if user already exists in waitlist
   const checkUserExists = async (phoneNumber) => {
     try {
-      console.log('Checking if user exists:', phoneNumber);
+      // console.log('Checking if user exists:', phoneNumber);
       const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
       if (error && error.code !== 'PGRST116') {
         // PGRST116 is "not found" error, which is expected for new users
-        console.error('Error checking user existence:', error);
+        // console.error('Error checking user existence:', error);
         return false;
       }
 
       return !!data; // Returns true if user exists, false otherwise
-    } catch (err) {
-      console.error('Error checking user existence:', err);
+    } catch {
+      // Error checking user existence
       return false;
     }
   };
@@ -437,7 +437,7 @@ const NumberInput = () => {
       const finalValidation = validateForOTPRequest(phoneNumber, countryCode);
 
       if (!finalValidation.isValid) {
-        console.error('Validation failed:', finalValidation.error);
+        // console.error('Validation failed:', finalValidation.error);
         setErrorMessage(finalValidation.error);
         setIsValid(false);
         setIsLoading(false);
@@ -445,13 +445,13 @@ const NumberInput = () => {
       }
 
       const fullPhoneNumber = countryCode + phoneNumber.replace(/\D/g, '');
-      console.log('Sending OTP to validated number:', fullPhoneNumber);
+      // console.log('Sending OTP to validated number:', fullPhoneNumber);
 
       // Check if user already exists in waitlist before sending OTP
       const userExists = await checkUserExists(fullPhoneNumber);
 
       if (userExists) {
-        console.log('User already exists in waitlist');
+        // console.log('User already exists in waitlist');
         setIsLoading(false);
         setShowDuplicatePopup(true);
         return;
@@ -461,19 +461,19 @@ const NumberInput = () => {
       // updateRateLimit(attemptCount + 1);
 
       // Call the OTP API here with validated number
-      const { data, error } = await supabase.auth.signInWithOtp({
+      const { data: _data, error } = await supabase.auth.signInWithOtp({
         phone: fullPhoneNumber,
         options: { channel: 'sms' },
       });
 
       if (error) {
-        console.error('Supabase OTP Error:', error);
+        // console.error('Supabase OTP Error:', error);
         const friendlyMessage = getErrorMessage(error);
         setApiError(friendlyMessage);
         setShowApiErrorPopup(true);
         setIsValid(false);
       } else {
-        console.log('OTP sent successfully:', data);
+        // console.log('OTP sent successfully:', data);
         // Clear any existing errors on success
         setErrorMessage('');
         setApiError('');
@@ -481,7 +481,7 @@ const NumberInput = () => {
         setShowOTPmodal(true);
       }
     } catch (err) {
-      console.error('Unexpected error sending OTP:', err);
+      // console.error('Unexpected error sending OTP:', err);
 
       // Handle different types of network/fetch errors
       let friendlyMessage = 'An unexpected error occurred. Please try again.';

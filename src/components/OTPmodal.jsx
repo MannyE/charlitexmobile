@@ -37,7 +37,7 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
 
   const addUserToDatabase = async (phoneNumber) => {
     try {
-      console.log('Attempting to add user to database:', phoneNumber);
+      // console.log('Attempting to add user to database:', phoneNumber);
 
       // Get the current authenticated user
       const {
@@ -46,11 +46,11 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        console.error('User not authenticated:', userError);
+        // console.error('User not authenticated:', userError);
         throw new Error('User must be authenticated to join waitlist');
       }
 
-      console.log('Authenticated user ID:', user.id);
+      // console.log('Authenticated user ID:', user.id);
 
       const { data, error } = await supabase
         .from('waitlist')
@@ -64,19 +64,14 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
         .select();
 
       if (error) {
-        console.error('Supabase error details:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        });
+        // Supabase error details logged
         throw error;
       }
 
-      console.log('User added to waitlist successfully:', data);
+      // console.log('User added to waitlist successfully:', data);
       return data;
-    } catch (err) {
-      console.error('Complete error object:', err);
+    } catch {
+      // console.error('Complete error object:', err);
       throw err;
     }
   };
@@ -248,7 +243,7 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
         setError(errorMessage);
       } else {
         // If the OTP code is verified successfully, add user to database
-        console.log('OTP verified successfully');
+        // console.log('OTP verified successfully');
 
         // Add user to database (duplicate check already done before OTP was sent)
         try {
@@ -258,8 +253,8 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
           setTimeout(() => {
             onClose();
           }, 2000);
-        } catch (err) {
-          console.error('Failed to add user to database:', err);
+        } catch {
+          // console.error('Failed to add user to database:', err);
 
           // Provide more specific error messages based on error type
           let errorMessage = 'Successfully verified, but failed to join waitlist. Please contact support.';
@@ -284,9 +279,9 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
           setError(errorMessage);
         }
       }
-    } catch (err) {
+    } catch {
       // If there is an error, set the error message
-      console.error('OTP verification error:', err);
+      // console.error('OTP verification error:', err);
       setError('Verification failed. Please try again.');
     } finally {
       // Set the verifying state to false
@@ -318,21 +313,21 @@ const OTPmodal = ({ isOpen, onClose, appName = 'CharlitexMobileConnect', phoneNu
     setResendCooldown(nextCooldown);
     setIsResendDisabled(true);
 
-    console.log(`Resend attempt ${newAttempts}, next cooldown: ${nextCooldown}s (${formatResendTime(nextCooldown)})`);
+    // console.log(`Resend attempt ${newAttempts}, next cooldown: ${nextCooldown}s (${formatResendTime(nextCooldown)})`);
 
     try {
-      console.log('Resending OTP to:', phoneNumber);
+      // console.log('Resending OTP to:', phoneNumber);
       const { error } = await supabase.auth.signInWithOtp({
         phone: phoneNumber,
         options: { channel: 'sms' },
       });
 
       if (error) {
-        console.error('Error resending OTP:', error);
+        // console.error('Error resending OTP:', error);
         setError('Failed to resend code. Please try again.');
       }
-    } catch (err) {
-      console.error('Error resending OTP:', err);
+    } catch {
+      // console.error('Error resending OTP:', err);
       setError('Failed to resend code. Please try again.');
     }
 

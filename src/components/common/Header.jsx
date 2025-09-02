@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = ({ showMobileMenu, onMobileMenuToggle }) => {
+const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle }) => {
   const handleAccountClick = () => {
     alert('Account features coming soon! This will navigate to account management.');
   };

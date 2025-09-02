@@ -125,7 +125,7 @@ export const useOTP = (phoneNumber) => {
         setError(result.error);
         return { success: false, error: result.error };
       }
-    } catch (err) {
+    } catch {
       const errorMsg = 'Verification failed. Please try again.';
       setError(errorMsg);
       return { success: false, error: errorMsg };
@@ -169,7 +169,7 @@ export const useOTP = (phoneNumber) => {
         setError(result.error);
         return { success: false, error: result.error };
       }
-    } catch (err) {
+    } catch {
       const errorMsg = 'Failed to resend code. Please try again.';
       setError(errorMsg);
       return { success: false, error: errorMsg };

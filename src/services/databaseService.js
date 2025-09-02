@@ -8,13 +8,13 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const checkUserExists = async (phoneNumber) => {
   try {
-    console.log('Checking if user exists:', phoneNumber);
+    // console.log('Checking if user exists:', phoneNumber);
 
     const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows found
-      console.error('Error checking user existence:', error);
+      // console.error('Error checking user existence:', error);
       return {
         exists: false,
         error: getDatabaseErrorMessage(error),
@@ -22,11 +22,11 @@ export const checkUserExists = async (phoneNumber) => {
     }
 
     const exists = !!data;
-    console.log(`User ${exists ? 'exists' : 'does not exist'} in waitlist`);
+    // console.log(`User ${exists ? 'exists' : 'does not exist'} in waitlist`);
 
     return { exists };
-  } catch (err) {
-    console.error('Unexpected error checking user existence:', err);
+  } catch {
+    // console.error('Unexpected error checking user existence:', err);
     return {
       exists: false,
       error: ERROR_MESSAGES.DATABASE.NETWORK_ERROR,
@@ -42,7 +42,7 @@ export const checkUserExists = async (phoneNumber) => {
  */
 export const addUserToWaitlist = async (phoneNumber, userId) => {
   try {
-    console.log('Adding user to waitlist:', { phoneNumber, userId });
+    // console.log('Adding user to waitlist:', { phoneNumber, userId });
 
     const { data, error } = await supabase
       .from('waitlist')
@@ -56,20 +56,20 @@ export const addUserToWaitlist = async (phoneNumber, userId) => {
       .select();
 
     if (error) {
-      console.error('Error adding user to waitlist:', error);
+      // console.error('Error adding user to waitlist:', error);
       return {
         success: false,
         error: getDatabaseErrorMessage(error),
       };
     }
 
-    console.log('User added to waitlist successfully:', data);
+    // console.log('User added to waitlist successfully:', data);
     return {
       success: true,
       data: data[0],
     };
-  } catch (err) {
-    console.error('Unexpected error adding user to waitlist:', err);
+  } catch {
+    // console.error('Unexpected error adding user to waitlist:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.DATABASE.UNKNOWN_ERROR,
