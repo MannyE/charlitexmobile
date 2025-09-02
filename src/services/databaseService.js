@@ -7,21 +7,21 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const testDatabaseConnection = async () => {
   try {
-    console.log('🔗 Testing database connection...');
+    // console.log('🔗 Testing database connection...');
 
     // Simple query to test connectivity
-    const { data, error, status } = await supabase.from('waitlist').select('count', { count: 'exact', head: true });
+    const { error } = await supabase.from('waitlist').select('count', { count: 'exact', head: true });
 
     if (error) {
-      console.error('❌ Database connection test failed:', { error, status });
+      // console.error('❌ Database connection test failed:', error);
       return { success: false, error: error.message };
     }
 
-    console.log('✅ Database connection successful, table has', data?.length || 0, 'records');
+    // console.log('✅ Database connection successful');
     return { success: true };
-  } catch (err) {
-    console.error('💥 Database connection test error:', err);
-    return { success: false, error: err.message };
+  } catch {
+    // console.error('💥 Database connection test error:', err);
+    return { success: false, error: 'Connection test failed' };
   }
 };
 
@@ -44,7 +44,7 @@ export const checkUserExists = async (phoneNumber) => {
       ].filter((alt, index, arr) => arr.indexOf(alt) === index); // Remove duplicates
 
       for (const altPhone of alternatives) {
-        const { data: altData, error: altError } = await supabase.from('waitlist').select('phone').eq('phone', altPhone).single();
+        const { data: altData } = await supabase.from('waitlist').select('phone').eq('phone', altPhone).single();
 
         if (altData) {
           return { exists: true };
@@ -61,7 +61,7 @@ export const checkUserExists = async (phoneNumber) => {
     }
 
     return { exists: !!data };
-  } catch (err) {
+  } catch {
     return {
       exists: false,
       error: ERROR_MESSAGES.DATABASE.NETWORK_ERROR,
@@ -77,7 +77,7 @@ export const checkUserExists = async (phoneNumber) => {
  */
 export const addUserToWaitlist = async (phoneNumber, userId) => {
   try {
-    console.log('Adding user to waitlist:', { phoneNumber, userId });
+    // console.log('Adding user to waitlist:', { phoneNumber, userId });
 
     const { data, error } = await supabase
       .from('waitlist')
@@ -91,20 +91,20 @@ export const addUserToWaitlist = async (phoneNumber, userId) => {
       .select();
 
     if (error) {
-      console.error('Error adding user to waitlist:', error);
+      // console.error('Error adding user to waitlist:', error);
       return {
         success: false,
         error: getDatabaseErrorMessage(error),
       };
     }
 
-    console.log('User added to waitlist successfully:', data);
+    // console.log('User added to waitlist successfully:', data);
     return {
       success: true,
       data: data[0],
     };
-  } catch (err) {
-    console.error('Unexpected error adding user to waitlist:', err);
+  } catch {
+    // console.error('Unexpected error adding user to waitlist:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.DATABASE.UNKNOWN_ERROR,

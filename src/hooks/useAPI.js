@@ -91,7 +91,7 @@ export const useAPI = () => {
         setError(result.error);
         return { success: false, error: result.error };
       }
-    } catch (err) {
+    } catch {
       const errorMsg = 'Failed to join waitlist. Please contact support.';
       setError(errorMsg);
       return { success: false, error: errorMsg };

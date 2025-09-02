@@ -8,27 +8,27 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const sendOTP = async (phoneNumber) => {
   try {
-    console.log('Sending OTP to:', phoneNumber);
+    // console.log('Sending OTP to:', phoneNumber);
 
     const { data, error } = await supabase.auth.signInWithOtp({
       phone: phoneNumber,
     });
 
     if (error) {
-      console.error('OTP send error:', error);
+      // console.error('OTP send error:', error);
       return {
         success: false,
         error: getOTPErrorMessage(error),
       };
     }
 
-    console.log('OTP sent successfully:', data);
+    // console.log('OTP sent successfully:', data);
     return {
       success: true,
       data,
     };
-  } catch (err) {
-    console.error('Unexpected error sending OTP:', err);
+  } catch {
+    // console.error('Unexpected error sending OTP:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.API.GENERIC_ERROR,
@@ -115,7 +115,7 @@ const getOTPErrorMessage = (error) => {
   const message = error.message?.toLowerCase() || '';
   const errorCode = error.errorCode || error.code || '';
   
-  console.log('🔍 Analyzing OTP error:', { message, errorCode, error });
+  // console.log('🔍 Analyzing OTP error:', { message, errorCode, error });
 
   // Handle Twilio rate limiting errors specifically
   if (errorCode === 'sms_send_failed' || message.includes('sms_send_failed')) {
@@ -157,7 +157,7 @@ const getOTPErrorMessage = (error) => {
   }
 
   // Provide more context for debugging
-  console.warn('🤔 Unknown OTP error type:', { message, errorCode });
+  // console.warn('🤔 Unknown OTP error type:', { message, errorCode });
   return ERROR_MESSAGES.API.GENERIC_ERROR;
 };
 
