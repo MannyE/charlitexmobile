@@ -1,9 +1,9 @@
 name: 🚀 Simple Deploy (Legacy)
 
 on:
-  push:
-    branches: [main, master]
-  workflow_dispatch: # Allows manual triggering from GitHub UI
+  # push:
+  #   branches: [main, master]  # DISABLED - Using cpanel-deploy.yml instead
+  workflow_dispatch: # Allows manual triggering from GitHub UI only
 
 jobs:
   build-and-deploy:
