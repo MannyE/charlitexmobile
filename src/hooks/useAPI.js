@@ -65,42 +65,33 @@ export const useAPI = () => {
     setError('');
 
     try {
-      console.log('🚀 Starting addToWaitlist for:', phoneNumber);
-
       // Get current authenticated user with retry logic (OTP verification needs time)
       let userResult = await getCurrentUser();
       let retryCount = 0;
       const maxRetries = 3;
 
       while ((!userResult.success || !userResult.user) && retryCount < maxRetries) {
-        console.log(`⏳ User not found, retrying... (${retryCount + 1}/${maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
         userResult = await getCurrentUser();
         retryCount++;
       }
 
       if (!userResult.success || !userResult.user) {
-        console.error('❌ Authentication failed after retries');
         const errorMsg = 'Authentication required to join waitlist.';
         setError(errorMsg);
         return { success: false, error: errorMsg };
       }
 
-      console.log('✅ User authenticated:', userResult.user.id);
-
       // Add to waitlist
       const result = await addUserToWaitlist(phoneNumber, userResult.user.id);
 
       if (result.success) {
-        console.log('🎉 Successfully added to waitlist!');
         return { success: true, data: result.data };
       } else {
-        console.error('❌ Failed to add to waitlist:', result.error);
         setError(result.error);
         return { success: false, error: result.error };
       }
     } catch (err) {
-      console.error('💥 Unexpected error in addToWaitlist:', err);
       const errorMsg = 'Failed to join waitlist. Please contact support.';
       setError(errorMsg);
       return { success: false, error: errorMsg };

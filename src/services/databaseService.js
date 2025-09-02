@@ -32,57 +32,25 @@ export const testDatabaseConnection = async () => {
  */
 export const checkUserExists = async (phoneNumber) => {
   try {
-    console.log('🔍 Checking if user exists:', phoneNumber);
+    console.log('Checking if user exists:', phoneNumber);
 
-    const { data, error, status } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
+    const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
-    console.log('📊 Database query result:', { data, error, status });
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // PGRST116 = no rows found (this is expected for new users)
-        console.log('✅ User not found in waitlist (new user)');
-        return { exists: false };
-      } else {
-        // Any other error (including 406) is a real problem
-        console.error('❌ Database query error:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          status: status
-        });
-        
-        // For 406 errors, let's try without the + sign as fallback
-        if (status === 406 && phoneNumber.startsWith('+')) {
-          console.log('🔄 Trying fallback query without + sign...');
-          const fallbackPhone = phoneNumber.substring(1);
-          const { data: fallbackData, error: fallbackError } = await supabase
-            .from('waitlist')
-            .select('phone')
-            .eq('phone', fallbackPhone)
-            .single();
-            
-          if (!fallbackError || fallbackError.code === 'PGRST116') {
-            const exists = !!fallbackData;
-            console.log(`📋 Fallback query: User ${exists ? 'EXISTS' : 'does NOT exist'} for ${fallbackPhone}`);
-            return { exists };
-          }
-        }
-        
-        return {
-          exists: false,
-          error: getDatabaseErrorMessage(error),
-        };
-      }
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = no rows found
+      console.error('Error checking user existence:', error);
+      return {
+        exists: false,
+        error: getDatabaseErrorMessage(error),
+      };
     }
 
     const exists = !!data;
-    console.log(`📋 User ${exists ? 'EXISTS' : 'does NOT exist'} in waitlist for ${phoneNumber}`);
+    console.log(`User ${exists ? 'exists' : 'does not exist'} in waitlist`);
 
     return { exists };
   } catch (err) {
-    console.error('💥 Unexpected error checking user existence:', err);
+    console.error('Unexpected error checking user existence:', err);
     return {
       exists: false,
       error: ERROR_MESSAGES.DATABASE.NETWORK_ERROR,
@@ -98,7 +66,7 @@ export const checkUserExists = async (phoneNumber) => {
  */
 export const addUserToWaitlist = async (phoneNumber, userId) => {
   try {
-    console.log('➕ Adding user to waitlist:', { phoneNumber, userId });
+    console.log('Adding user to waitlist:', { phoneNumber, userId });
 
     const { data, error } = await supabase
       .from('waitlist')
@@ -112,20 +80,20 @@ export const addUserToWaitlist = async (phoneNumber, userId) => {
       .select();
 
     if (error) {
-      console.error('❌ Error adding user to waitlist:', error);
+      console.error('Error adding user to waitlist:', error);
       return {
         success: false,
         error: getDatabaseErrorMessage(error),
       };
     }
 
-    console.log('✅ User added to waitlist successfully:', data);
+    console.log('User added to waitlist successfully:', data);
     return {
       success: true,
       data: data[0],
     };
   } catch (err) {
-    console.error('💥 Unexpected error adding user to waitlist:', err);
+    console.error('Unexpected error adding user to waitlist:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.DATABASE.UNKNOWN_ERROR,

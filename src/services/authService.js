@@ -8,65 +8,27 @@ import { ERROR_MESSAGES } from '../constants/validation';
  */
 export const sendOTP = async (phoneNumber) => {
   try {
-    console.log('📱 Sending OTP to:', phoneNumber);
+    console.log('Sending OTP to:', phoneNumber);
 
-    // Ensure phone number is in correct format for Supabase Auth
-    let formattedPhone = phoneNumber;
-    
-    // Supabase typically expects E.164 format: +1234567890
-    if (!formattedPhone.startsWith('+')) {
-      formattedPhone = `+${formattedPhone}`;
-    }
-    
-    console.log('📞 Formatted phone number:', formattedPhone);
-
-    const { data, error, status } = await supabase.auth.signInWithOtp({
-      phone: formattedPhone,
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone: phoneNumber,
     });
 
     if (error) {
-      console.error('❌ OTP send error:', {
-        error,
-        status,
-        phoneNumber: formattedPhone,
-        originalPhone: phoneNumber
-      });
-      
-      // For 422 errors, try different phone number formats
-      if (status === 422) {
-        console.log('🔄 422 error - trying alternative phone formats...');
-        
-        // Try without country code if it's a US number
-        if (formattedPhone.startsWith('+1') && formattedPhone.length === 12) {
-          const fallbackPhone = formattedPhone; // Keep the same format for now
-          console.log('📞 Fallback format attempt:', fallbackPhone);
-          
-          const { data: fallbackData, error: fallbackError } = await supabase.auth.signInWithOtp({
-            phone: fallbackPhone,
-          });
-          
-          if (!fallbackError) {
-            console.log('✅ Fallback OTP sent successfully');
-            return { success: true, data: fallbackData };
-          }
-          
-          console.error('❌ Fallback also failed:', fallbackError);
-        }
-      }
-      
+      console.error('OTP send error:', error);
       return {
         success: false,
         error: getOTPErrorMessage(error),
       };
     }
 
-    console.log('✅ OTP sent successfully to:', formattedPhone);
+    console.log('OTP sent successfully:', data);
     return {
       success: true,
       data,
     };
   } catch (err) {
-    console.error('💥 Unexpected error sending OTP:', err);
+    console.error('Unexpected error sending OTP:', err);
     return {
       success: false,
       error: ERROR_MESSAGES.API.GENERIC_ERROR,
