@@ -6,7 +6,7 @@
     
     <!-- Homepage -->
     <url>
-        <loc>https://yourdomain.com</loc>
+        <loc>https://charlitexmobile.com/</loc>
         <lastmod>2024-01-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
@@ -14,7 +14,7 @@
     
     <!-- Pricing Section -->
     <url>
-        <loc>https://yourdomain.com#pricing</loc>
+        <loc>https://charlitexmobile.com/#pricing</loc>
         <lastmod>2024-01-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -22,7 +22,7 @@
     
     <!-- Features Section -->
     <url>
-        <loc>https://yourdomain.com#features</loc>
+        <loc>https://charlitexmobile.com/#features</loc>
         <lastmod>2024-01-01</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
@@ -30,7 +30,7 @@
     
     <!-- Contact/Waitlist -->
     <url>
-        <loc>https://yourdomain.com#waitlist</loc>
+        <loc>https://charlitexmobile.com/#waitlist</loc>
         <lastmod>2024-01-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SEOHead = ({ title = 'CharlitexMobileConnect - Free International Calls to 155+ Countries', description = 'Connect with loved ones worldwide with unlimited international calls to 155+ countries. Starting at $15/month with crystal-clear voice quality and unbeatable prices.', keywords = 'international calls, free calls, VoIP, mobile connect, cheap international calling, unlimited calls, global calling, phone service', canonical = 'https://yourdomain.com', ogImage = 'https://yourdomain.com/og-image.png', twitterImage = 'https://yourdomain.com/twitter-image.png' }) => {
+const SEOHead = ({ title = 'CharlitexMobileConnect - Free International Calls to 155+ Countries', description = 'Connect with loved ones worldwide with unlimited international calls to 155+ countries. Starting at $15/month with crystal-clear voice quality and unbeatable prices.', keywords = 'international calls, free calls, VoIP, mobile connect, cheap international calling, unlimited calls, global calling, phone service', canonical = 'https://charlitexmobile.com/', ogImage = 'https://charlitexmobile.com/og-image.png', twitterImage = 'https://charlitexmobile.com/twitter-image.png' }) => {
   useEffect(() => {
     // Update document title
     document.title = title;

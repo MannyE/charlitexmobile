@@ -8,7 +8,7 @@
 const https = require('https');
 const http = require('http');
 
-const SITE_URL = process.env.VITE_APP_URL || 'https://yourdomain.com';
+const SITE_URL = process.env.VITE_APP_URL || 'https://charlitexmobile.com/';
 const TIMEOUT = 10000; // 10 seconds
 
 console.log('🔍 CharlitexMobileConnect Health Check');
