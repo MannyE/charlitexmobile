@@ -151,9 +151,28 @@ export const getCurrentUser = async () => {
  */
 const getOTPErrorMessage = (error) => {
   const message = error.message?.toLowerCase() || '';
-  const errorCode = error.code || '';
+  const errorCode = error.errorCode || error.code || '';
   
   console.log('🔍 Analyzing OTP error:', { message, errorCode, error });
+
+  // Handle Twilio rate limiting errors specifically
+  if (errorCode === 'sms_send_failed' || message.includes('sms_send_failed')) {
+    if (message.includes('too ma') || message.includes('20429')) {
+      return '⏰ Too many SMS requests to this number. Please wait 15-30 minutes and try again, or use a different phone number.';
+    }
+    return 'SMS delivery failed. Please verify your phone number and try again.';
+  }
+
+  // Handle rate limiting in general
+  if (message.includes('rate') || message.includes('limit') || message.includes('many') || message.includes('too ma')) {
+    // Check if it mentions a specific time
+    const timeMatch = message.match(/(\d+)\s*(minute|second|hour)/i);
+    if (timeMatch) {
+      const time = `${timeMatch[1]} ${timeMatch[2]}${timeMatch[1] > 1 ? 's' : ''}`;
+      return `⏰ Rate limited. Please wait ${time} before trying again.`;
+    }
+    return '⏰ Too many requests. Please wait 15-30 minutes before trying again.';
+  }
 
   // Handle 422 errors specifically (Unprocessable Content)
   if (message.includes('unprocessable') || errorCode === '422') {
@@ -161,16 +180,6 @@ const getOTPErrorMessage = (error) => {
       return 'Invalid phone number format. Please check your number and try again.';
     }
     return 'Phone number format not supported. Please verify your number is correct.';
-  }
-
-  if (message.includes('rate') || message.includes('limit') || message.includes('many')) {
-    // Extract rate limit time if available
-    const timeMatch = message.match(/(\d+)\s*(minute|second|hour)/i);
-    if (timeMatch) {
-      const time = `${timeMatch[1]} ${timeMatch[2]}${timeMatch[1] > 1 ? 's' : ''}`;
-      return ERROR_MESSAGES.API.RATE_LIMITED.replace('{time}', time);
-    }
-    return 'Too many requests. Please wait a few minutes before trying again.';
   }
 
   if (message.includes('network') || message.includes('connection')) {
