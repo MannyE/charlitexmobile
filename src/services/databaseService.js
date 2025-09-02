@@ -8,15 +8,15 @@ import { ERROR_MESSAGES } from '../constants/validation';
 export const testDatabaseConnection = async () => {
   try {
     console.log('🔗 Testing database connection...');
-    
+
     // Simple query to test connectivity
     const { data, error, status } = await supabase.from('waitlist').select('count', { count: 'exact', head: true });
-    
+
     if (error) {
       console.error('❌ Database connection test failed:', { error, status });
       return { success: false, error: error.message };
     }
-    
+
     console.log('✅ Database connection successful, table has', data?.length || 0, 'records');
     return { success: true };
   } catch (err) {
@@ -32,41 +32,36 @@ export const testDatabaseConnection = async () => {
  */
 export const checkUserExists = async (phoneNumber) => {
   try {
-    console.log('🔍 DEBUGGING: Checking if user exists for phone:', phoneNumber);
-
+    // Check exact phone number first
     const { data, error } = await supabase.from('waitlist').select('phone').eq('phone', phoneNumber).single();
 
-    console.log('🔍 DEBUGGING: Database query result:', { 
-      phoneNumber,
-      data, 
-      error,
-      errorCode: error?.code 
-    });
+    // Try alternative formats if the first query fails
+    if (error && error.code === 'PGRST116') {
+      const alternatives = [
+        phoneNumber.replace('+', ''), // Remove +: "14699961154"
+        phoneNumber.replace('+1', ''), // Remove +1: "4699961154"
+        phoneNumber, // Keep original: "+14699961154"
+      ].filter((alt, index, arr) => arr.indexOf(alt) === index); // Remove duplicates
+
+      for (const altPhone of alternatives) {
+        const { data: altData, error: altError } = await supabase.from('waitlist').select('phone').eq('phone', altPhone).single();
+
+        if (altData) {
+          return { exists: true };
+        }
+      }
+    }
 
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows found
-      console.error('❌ DEBUGGING: Database error (not PGRST116):', error);
       return {
         exists: false,
         error: getDatabaseErrorMessage(error),
       };
     }
 
-    if (error && error.code === 'PGRST116') {
-      console.log('✅ DEBUGGING: PGRST116 - No rows found (user does NOT exist)');
-      return { exists: false };
-    }
-
-    const exists = !!data;
-    console.log(`📋 DEBUGGING: Final result - User ${exists ? 'EXISTS' : 'does NOT exist'} in waitlist`);
-    
-    if (exists) {
-      console.log('🎯 DEBUGGING: User found! Data:', data);
-    }
-
-    return { exists };
+    return { exists: !!data };
   } catch (err) {
-    console.error('💥 DEBUGGING: Unexpected error checking user existence:', err);
     return {
       exists: false,
       error: ERROR_MESSAGES.DATABASE.NETWORK_ERROR,

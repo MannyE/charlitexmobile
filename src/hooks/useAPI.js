@@ -23,41 +23,31 @@ export const useAPI = () => {
     setShowDuplicatePopup(false);
 
     try {
-      console.log('🚀 DEBUGGING: Starting sendOTPWithCheck for phone:', phoneNumber);
-
       // First check if user already exists
       const existsResult = await checkUserExists(phoneNumber);
-      console.log('🔍 DEBUGGING: checkUserExists result:', existsResult);
 
       if (existsResult.error) {
-        console.error('❌ DEBUGGING: Database error, showing error popup:', existsResult.error);
         setError(existsResult.error);
         setShowApiErrorPopup(true);
         return { success: false, error: existsResult.error };
       }
 
       if (existsResult.exists) {
-        console.log('🎯 DEBUGGING: USER EXISTS! Showing duplicate popup instead of sending OTP');
         setShowDuplicatePopup(true);
         return { success: false, userExists: true };
       }
 
-      console.log('📱 DEBUGGING: User does NOT exist, proceeding to send OTP...');
-      
       // User doesn't exist, send OTP
       const otpResult = await sendOTP(phoneNumber);
 
       if (otpResult.success) {
-        console.log('✅ DEBUGGING: OTP sent successfully');
         return { success: true, data: otpResult.data };
       } else {
-        console.error('❌ DEBUGGING: OTP send failed:', otpResult.error);
         setError(otpResult.error);
         setShowApiErrorPopup(true);
         return { success: false, error: otpResult.error };
       }
-    } catch (err) {
-      console.error('💥 DEBUGGING: Unexpected error in sendOTPWithCheck:', err);
+    } catch {
       const errorMsg = 'Something went wrong. Please try again.';
       setError(errorMsg);
       setShowApiErrorPopup(true);
