@@ -1,0 +1,56 @@
+name: 🧪 Deploy to Staging (cPanel)
+
+on:
+  push:
+    branches: [develop, staging]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  deploy-staging:
+    name: 🧪 Staging Deployment
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🏗️ Build for Staging
+        run: npm run build:prod
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL_STAGING }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY_STAGING }}
+          VITE_APP_URL: ${{ secrets.VITE_APP_URL_STAGING }}
+
+      - name: 🚀 Deploy to Staging cPanel
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER_STAGING }}
+          username: ${{ secrets.FTP_USERNAME_STAGING }}
+          password: ${{ secrets.FTP_PASSWORD_STAGING }}
+          local-dir: ./dist/
+          server-dir: /public_html/staging/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env*
+            **/.DS_Store
+          log-level: verbose
+
+      - name: 📢 Staging Deployment Complete
+        run: |
+          echo "🎉 Staging deployment successful!"
+          echo "🌐 Staging URL: ${{ secrets.VITE_APP_URL_STAGING }}"

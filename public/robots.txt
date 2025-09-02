@@ -1,0 +1,31 @@
+# robots.txt for CharlitexMobileConnect
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay for better server performance
+Crawl-delay: 1
+
+# Allow all search engines to access images
+User-agent: *
+Allow: /assets/
+Allow: /screenshots/
+
+# Block access to source maps and config files
+Disallow: /*.map$
+Disallow: /vite.config.js
+Disallow: /package.json
+Disallow: /.env
+
+# Popular search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /

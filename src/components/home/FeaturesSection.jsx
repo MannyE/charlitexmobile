@@ -26,16 +26,29 @@ const FeaturesSection = () => {
   ];
 
   return (
-    <section className="features-section">
+    <section
+      className="features-section"
+      id="features"
+      aria-labelledby="features-heading">
       <div className="features-content">
-        <div className="features-grid">
+        <h2
+          id="features-heading"
+          className="section-title visually-hidden">
+          International Calling Service Features
+        </h2>
+        <div
+          className="features-grid"
+          role="list">
           {features.map((feature, index) => (
-            <FeatureCard
+            <div
               key={index}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-            />
+              role="listitem">
+              <FeatureCard
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+              />
+            </div>
           ))}
         </div>
       </div>

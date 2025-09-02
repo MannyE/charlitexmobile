@@ -1,0 +1,359 @@
+name: 🚀 Deploy CharlitexMobileConnect to cPanel
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      skip_tests:
+        description: 'Skip tests and linting'
+        required: false
+        default: false
+        type: boolean
+
+# Global environment variables
+env:
+  NODE_VERSION: '18'
+  CACHE_NAME: charlitex-cache-v1
+
+jobs:
+  # ==================== CODE QUALITY & TESTING ====================
+  quality-check:
+    name: 🔍 Code Quality & Testing
+    runs-on: ubuntu-latest
+    if: ${{ !inputs.skip_tests }}
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history for better caching
+
+      - name: 🔧 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          echo "✅ Dependencies installed successfully"
+
+      - name: 🔍 Run ESLint
+        run: |
+          npm run lint
+          echo "✅ Linting completed successfully"
+
+      - name: 🏗️ Test Build Process
+        run: |
+          npm run build:prod
+          echo "✅ Build test completed successfully"
+
+      - name: 📊 Check Bundle Size
+        run: |
+          echo "📦 Bundle Analysis:"
+          ls -lah dist/
+          echo "📈 Total bundle size:"
+          du -sh dist/
+
+          # Check if bundle is too large (warn if > 1MB)
+          BUNDLE_SIZE=$(du -sm dist/ | cut -f1)
+          if [ $BUNDLE_SIZE -gt 1 ]; then
+            echo "⚠️ Warning: Bundle size is ${BUNDLE_SIZE}MB (consider optimization)"
+          else
+            echo "✅ Bundle size is optimal: ${BUNDLE_SIZE}MB"
+          fi
+
+      - name: 🔒 Security Audit
+        run: |
+          npm audit --audit-level=moderate
+          echo "✅ Security audit completed"
+
+      - name: 📄 Cache Build Artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            dist/
+            node_modules/.cache
+          key: ${{ env.CACHE_NAME }}-${{ github.sha }}
+          restore-keys: |
+            ${{ env.CACHE_NAME }}-
+
+  # ==================== PRODUCTION BUILD ====================
+  build-production:
+    name: 🏗️ Production Build
+    runs-on: ubuntu-latest
+    needs: [quality-check]
+    if: always() && (needs.quality-check.result == 'success' || inputs.skip_tests)
+
+    outputs:
+      deployment-ready: ${{ steps.build-check.outputs.ready }}
+      build-size: ${{ steps.build-check.outputs.size }}
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit --production=false
+          echo "✅ Production dependencies installed"
+
+      - name: 🌍 Set Environment Variables
+        run: |
+          echo "Setting up production environment..."
+          echo "VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}" >> .env.production
+          echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env.production
+          echo "VITE_APP_URL=${{ secrets.VITE_APP_URL }}" >> .env.production
+          echo "✅ Environment variables configured"
+
+      - name: 🏗️ Build for Production
+        run: |
+          echo "🚀 Building CharlitexMobileConnect for production..."
+          npm run build:prod
+          echo "✅ Production build completed successfully"
+
+      - name: 🔍 Verify Build Output
+        id: build-check
+        run: |
+          echo "📊 Verifying build output..."
+
+          # Check if build directory exists
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist directory not found"
+            exit 1
+          fi
+
+          # Check if essential files exist
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ Build failed: index.html not found"
+            exit 1
+          fi
+
+          # Get build size
+          BUILD_SIZE=$(du -sh dist/ | cut -f1)
+          echo "size=${BUILD_SIZE}" >> $GITHUB_OUTPUT
+          echo "ready=true" >> $GITHUB_OUTPUT
+
+          echo "✅ Build verification completed"
+          echo "📦 Build size: ${BUILD_SIZE}"
+
+          # List all files for verification
+          echo "📁 Build contents:"
+          find dist -type f -name "*.html" -o -name "*.js" -o -name "*.css" | head -20
+
+      - name: 🗜️ Optimize Build Assets
+        run: |
+          echo "🔧 Optimizing build assets..."
+
+          # Remove source maps if they exist (already disabled in vite.config)
+          find dist -name "*.map" -delete 2>/dev/null || true
+
+          # Remove any development files
+          find dist -name "*.development.*" -delete 2>/dev/null || true
+
+          echo "✅ Asset optimization completed"
+
+      - name: 📤 Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build-${{ github.sha }}
+          path: dist/
+          retention-days: 7
+          compression-level: 9
+
+  # ==================== CPANEL DEPLOYMENT ====================
+  deploy-cpanel:
+    name: 🌐 Deploy to cPanel
+    runs-on: ubuntu-latest
+    needs: [build-production]
+    if: always() && needs.build-production.outputs.deployment-ready == 'true'
+    environment: ${{ inputs.environment || 'production' }}
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-build-${{ github.sha }}
+          path: dist/
+
+      - name: 🔍 Pre-deployment Verification
+        run: |
+          echo "🔍 Pre-deployment checks..."
+
+          # Verify required secrets
+          if [ -z "${{ secrets.FTP_SERVER }}" ]; then
+            echo "❌ FTP_SERVER secret not configured"
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.FTP_USERNAME }}" ]; then
+            echo "❌ FTP_USERNAME secret not configured" 
+            exit 1
+          fi
+
+          # Verify build files
+          if [ ! -f "dist/index.html" ]; then
+            echo "❌ index.html not found in build"
+            exit 1
+          fi
+
+          echo "✅ Pre-deployment verification passed"
+          echo "📊 Build info:"
+          echo "  - Size: ${{ needs.build-production.outputs.build-size }}"
+          echo "  - Files: $(find dist -type f | wc -l) files"
+
+      - name: 🏗️ Prepare Deployment Files
+        run: |
+          echo "📋 Preparing files for deployment..."
+
+          # Create deployment manifest
+          echo "# CharlitexMobileConnect Deployment Manifest" > dist/DEPLOYMENT_INFO.txt
+          echo "Deployed: $(date)" >> dist/DEPLOYMENT_INFO.txt
+          echo "Commit: ${{ github.sha }}" >> dist/DEPLOYMENT_INFO.txt
+          echo "Branch: ${{ github.ref_name }}" >> dist/DEPLOYMENT_INFO.txt
+          echo "Build Size: ${{ needs.build-production.outputs.build-size }}" >> dist/DEPLOYMENT_INFO.txt
+
+          # Ensure sitemap and robots.txt are included
+          if [ -f "public/sitemap.xml" ]; then
+            cp public/sitemap.xml dist/ 2>/dev/null || true
+          fi
+
+          if [ -f "public/robots.txt" ]; then
+            cp public/robots.txt dist/ 2>/dev/null || true
+          fi
+
+          echo "✅ Deployment files prepared"
+
+      - name: 🚀 Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /public_html/
+          protocol: ftp
+          port: 21
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env*
+            **/.DS_Store
+            **/.vscode/**
+            **/coverage/**
+            **/*.log
+            **/npm-debug.log*
+          state-name: .ftp-deploy-sync-state.json
+          dry-run: false
+          log-level: verbose
+          security: strict
+          timeout: 300000
+
+      - name: 🔗 Post-deployment Verification
+        run: |
+          echo "🔍 Post-deployment verification..."
+
+          # Wait a moment for deployment to propagate
+          sleep 10
+
+          # Test if the site is accessible (basic check)
+          SITE_URL="${{ secrets.VITE_APP_URL }}"
+          if [ ! -z "$SITE_URL" ]; then
+            echo "🌐 Testing site accessibility..."
+            
+            # Use curl to test site (allow redirects, follow location)
+            if curl -sL -w "%{http_code}" -o /dev/null --max-time 30 "$SITE_URL" | grep -q "^[23]"; then
+              echo "✅ Site is accessible at $SITE_URL"
+            else
+              echo "⚠️ Site accessibility check failed (may need time to propagate)"
+            fi
+          else
+            echo "⚠️ VITE_APP_URL not configured, skipping accessibility check"
+          fi
+
+          echo "✅ Deployment completed successfully!"
+
+  # ==================== DEPLOYMENT NOTIFICATION ====================
+  notify:
+    name: 📢 Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-cpanel]
+    if: always()
+
+    steps:
+      - name: 📊 Deployment Summary
+        run: |
+          echo "# 🚀 CharlitexMobileConnect Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ needs.deploy-cpanel.result == 'success' && '✅ Successful' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ inputs.environment || 'production' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Size**: ${{ needs.build-production.outputs.build-size || 'N/A' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.deploy-cpanel.result }}" == "success" ]; then
+            echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Your CharlitexMobileConnect website has been successfully deployed to cPanel!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+            echo "1. 🌐 Visit your website: ${{ secrets.VITE_APP_URL || 'https://yourdomain.com' }}" >> $GITHUB_STEP_SUMMARY
+            echo "2. 🔍 Test all functionality (waitlist, OTP, etc.)" >> $GITHUB_STEP_SUMMARY
+            echo "3. 📊 Monitor Google Analytics and Search Console" >> $GITHUB_STEP_SUMMARY
+            echo "4. 📱 Test mobile responsiveness" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the logs above for error details." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Common Issues:" >> $GITHUB_STEP_SUMMARY
+            echo "- Check FTP credentials in repository secrets" >> $GITHUB_STEP_SUMMARY
+            echo "- Verify cPanel public_html directory permissions" >> $GITHUB_STEP_SUMMARY
+            echo "- Ensure Supabase environment variables are correct" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: ✅ Success Notification
+        if: needs.deploy-cpanel.result == 'success'
+        run: |
+          echo "🎉 SUCCESS: CharlitexMobileConnect deployed successfully!"
+          echo "🌐 Website: ${{ secrets.VITE_APP_URL || 'https://yourdomain.com' }}"
+          echo "📦 Build Size: ${{ needs.build-production.outputs.build-size }}"
+          echo "⏰ Deployment Time: $(date)"
+
+      - name: ❌ Failure Notification
+        if: needs.deploy-cpanel.result != 'success'
+        run: |
+          echo "❌ FAILED: CharlitexMobileConnect deployment failed!"
+          echo "🔍 Check the logs above for detailed error information"
+          echo "💡 Common fixes:"
+          echo "  - Verify all GitHub secrets are configured correctly"
+          echo "  - Check cPanel FTP access and permissions" 
+          echo "  - Ensure Supabase production environment is set up"
+          exit 1

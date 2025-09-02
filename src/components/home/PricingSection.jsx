@@ -8,10 +8,19 @@ const PricingSection = ({ onOpenWaitlist }) => {
   };
 
   return (
-    <section className="pricing-section-wrapper">
+    <section
+      className="pricing-section-wrapper"
+      id="pricing"
+      aria-labelledby="pricing-heading">
       <div className="pricing-content">
-        <h2 className="pricing-title">Pricing That Fits Your Goals and Budget</h2>
-        <div className="pricing-cards">
+        <h2
+          id="pricing-heading"
+          className="pricing-title">
+          Affordable International Calling Plans - Pricing That Fits Your Budget
+        </h2>
+        <div
+          className="pricing-cards"
+          role="list">
           <div className="pricing-card essentials">
             <div className="card-badge">STARTER</div>
             <div className="card-header">

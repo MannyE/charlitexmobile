@@ -1,0 +1,99 @@
+# .github/workflows/deploy-react-spa.yml
+name: Deploy React SPA to cPanel (FTPS)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      build_dir:
+        description: "Build output directory (dist or build)"
+        required: true
+        default: "dist"   # set to "build" for CRA
+      subfolder:
+        description: "If deploying to a subfolder, e.g. /public_html/myapp/"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      # Pass build-time env vars from GitHub Secrets (adjust names to your project)
+      VITE_API_URL: ${{ secrets.VITE_API_URL }}
+      REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect package manager and build dir
+        id: cfg
+        shell: bash
+        run: |
+          # set BUILD_DIR from input, fallback to dist (Vite) if not provided
+          BUILD_DIR="${{ github.event.inputs.build_dir }}"
+          if [ -z "$BUILD_DIR" ]; then BUILD_DIR="dist"; fi
+          # decide runner commands
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "pm=pnpm" >> $GITHUB_OUTPUT
+            echo "ci=pnpm i --frozen-lockfile" >> $GITHUB_OUTPUT
+            echo "build=pnpm build" >> $GITHUB_OUTPUT
+          elif [ -f "yarn.lock" ]; then
+            echo "pm=yarn" >> $GITHUB_OUTPUT
+            echo "ci=yarn --frozen-lockfile" >> $GITHUB_OUTPUT
+            echo "build=yarn build" >> $GITHUB_OUTPUT
+          else
+            echo "pm=npm" >> $GITHUB_OUTPUT
+            echo "ci=npm ci" >> $GITHUB_OUTPUT
+            echo "build=npm run build" >> $GITHUB_OUTPUT
+          fi
+          echo "build_dir=$BUILD_DIR" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: ${{ steps.cfg.outputs.pm }}
+
+      - name: Install deps
+        run: ${{ steps.cfg.outputs.ci }}
+
+      - name: Build
+        # build respects env vars above (VITE_* or REACT_APP_*)
+        run: ${{ steps.cfg.outputs.build }}
+
+      # optional: verify output exists
+      - name: Check build output
+        shell: bash
+        run: |
+          ls -la ${{ steps.cfg.outputs.build_dir }} || (echo "Build dir missing"; exit 1)
+
+      # (optional) upload build as artifact for traceability
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: ${{ steps.cfg.outputs.build_dir }}
+
+      # deploy via FTPS
+      - name: Deploy to cPanel via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          protocol: ftps
+          local-dir: ${{ steps.cfg.outputs.build_dir }}/
+          # If provided, override REMOTE_DIR with a workflow input "subfolder"
+          server-dir: ${{ inputs.subfolder != '' && inputs.subfolder || secrets.REMOTE_DIR }}
+          state-name: .ftp-deploy-sync-state.json
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/*.map
+            **/README*

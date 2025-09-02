@@ -3,8 +3,10 @@ import Header from './common/Header';
 import HeroSection from './home/HeroSection';
 import PricingSection from './home/PricingSection';
 import FeaturesSection from './home/FeaturesSection';
+import FAQSection from './home/FAQSection';
 import CTASection from './home/CTASection';
 import WaitlistModal from './common/WaitlistModal';
+import SEOHead from './seo/SEOHead';
 
 const Home = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -23,21 +25,27 @@ const Home = () => {
   };
 
   return (
-    <div className="home-container">
-      <Header
-        showMobileMenu={showMobileMenu}
-        onMobileMenuToggle={handleMobileMenuToggle}
-      />
-      <HeroSection onOpenWaitlist={handleOpenWaitlist} />
-      <PricingSection onOpenWaitlist={handleOpenWaitlist} />
-      <FeaturesSection />
-      <CTASection onOpenWaitlist={handleOpenWaitlist} />
+    <>
+      <SEOHead />
+      <div className="home-container">
+        <Header
+          showMobileMenu={showMobileMenu}
+          onMobileMenuToggle={handleMobileMenuToggle}
+        />
+        <main>
+          <HeroSection onOpenWaitlist={handleOpenWaitlist} />
+          <PricingSection onOpenWaitlist={handleOpenWaitlist} />
+          <FeaturesSection />
+          <FAQSection />
+          <CTASection onOpenWaitlist={handleOpenWaitlist} />
+        </main>
 
-      <WaitlistModal
-        isOpen={showWaitlistModal}
-        onClose={handleCloseWaitlist}
-      />
-    </div>
+        <WaitlistModal
+          isOpen={showWaitlistModal}
+          onClose={handleCloseWaitlist}
+        />
+      </div>
+    </>
   );
 };
 

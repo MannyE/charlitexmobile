@@ -22,6 +22,10 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1000,
+    // SEO and Performance optimizations
+    target: 'es2018',
+    cssCodeSplit: true,
+    reportCompressedSize: false, // Faster builds
   },
   server: {
     port: 3000,

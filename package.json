@@ -9,7 +9,10 @@
     "build:prod": "NODE_ENV=production vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "deploy": "npm run build:prod"
+    "deploy": "npm run build:prod",
+    "health-check": "node scripts/health-check.js",
+    "deploy:staging": "echo 'Push to staging branch to deploy to staging environment'",
+    "deploy:production": "echo 'Push to main branch to deploy to production environment'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.56.1",

@@ -1,0 +1,38 @@
+name: 🩺 Health Check
+
+on:
+  schedule:
+    # Run health check every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to health check (optional)'
+        required: false
+        default: ''
+
+jobs:
+  health-check:
+    name: 🩺 Website Health Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🩺 Run Health Check
+        run: |
+          chmod +x scripts/health-check.js
+          node scripts/health-check.js
+        env:
+          VITE_APP_URL: ${{ inputs.url || secrets.VITE_APP_URL }}
+
+      - name: 📊 Health Check Summary
+        if: always()
+        run: |
+          echo "🩺 Health check completed for: ${{ inputs.url || secrets.VITE_APP_URL || 'https://yourdomain.com' }}"
