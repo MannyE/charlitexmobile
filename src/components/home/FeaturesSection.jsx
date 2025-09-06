@@ -31,11 +31,16 @@ const FeaturesSection = () => {
       id="features"
       aria-labelledby="features-heading">
       <div className="features-content">
-        <h2
-          id="features-heading"
-          className="section-title visually-hidden">
-          International Calling Service Features
-        </h2>
+        <div className="features-header">
+          <h2
+            id="features-heading"
+            className="features-title">
+            Why Choose CharlitexMobileConnect?
+          </h2>
+          <p className="features-subtitle">
+            Experience the future of international calling with our cutting-edge features and unbeatable value
+          </p>
+        </div>
         <div
           className="features-grid"
           role="list">

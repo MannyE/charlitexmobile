@@ -8,6 +8,7 @@
 @import './styles/components/waitlist-modal.css';
 @import './styles/seo.css';
 @import './styles/components/pricing.css';
+@import './styles/components/features.css';
 /* 
 body {
   @apply flex flex-col items-center justify-center h-screen w-screen bg-[#121212] text-white;
