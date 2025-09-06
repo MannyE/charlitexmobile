@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../../assets/logos/logo-blue.png';
 
 const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle }) => {
   const handleAccountClick = () => {
@@ -9,9 +10,11 @@ const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle }) => {
     <header className="home-header">
       <div className="header-content">
         <div className="logo">
+          <img src={logo} alt="Charlitex Mobile Connect" className="logo-image w-12 h-12" />
           <span className="logo-text">
             CHARLI<span className="logo-accent">MOBIL</span>
           </span>
+
         </div>
 
         <div className="header-actions">

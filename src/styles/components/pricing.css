@@ -27,7 +27,7 @@
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 40px;
   margin-bottom: 32px;
-  align-items: stretch;
+  align-items: stretch; /* Ensures equal height cards */
 }
 
 .pricing-card {
@@ -44,7 +44,8 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100%; /* Equal height cards */
+  min-height: 580px; /* Minimum height for desktop consistency */
 }
 
 .pricing-card::before {
@@ -67,6 +68,7 @@
   background: linear-gradient(135deg, rgba(0, 172, 193, 0.95), rgba(38, 198, 218, 0.95));
   border-color: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
+  /* Premium card maintains same height as other cards */
 }
 
 .pricing-card.premium::before {
@@ -169,10 +171,11 @@
   padding: 0;
   margin: 0;
   text-align: left;
-  flex: 1;
+  flex: 1; /* Expands to fill available space for equal card heights */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  min-height: 200px; /* Minimum space for features content */
 }
 
 .features li {
@@ -391,8 +394,8 @@
   .pricing-card {
     padding: 32px 24px;
     margin: 0;
-    height: auto;
     min-height: 500px;
+    /* Keep height: 100% for equal card heights */
   }
 
   .pricing-card.premium {
