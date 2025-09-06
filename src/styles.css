@@ -1295,7 +1295,7 @@ nav a:hover::after {
   }
 }
 
-/* Features Section */
+/* Features Section - main styles in components/features.css */
 .features-section {
   padding: 120px 0;
   background: rgba(255, 255, 255, 0.02);
@@ -1307,32 +1307,7 @@ nav a:hover::after {
   padding: 0 24px;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
-}
-
-.feature-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 32px 24px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 172, 193, 0.1);
-  border-color: rgba(0, 172, 193, 0.3);
-}
-
-.card-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
-  display: block;
-}
+/* Feature card styles moved to components/features.css */
 
 .feature-card h3 {
   font-size: 20px;
@@ -1346,6 +1321,7 @@ nav a:hover::after {
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
+  flex: 1; /* Expands to fill available space for equal card heights */
 }
 
 /* CTA Section */
@@ -1804,7 +1780,7 @@ nav a:hover::after {
   }
 }
 
-/* Features Section */
+/* Features Section - main styles in components/features.css */
 .features-section {
   padding: 120px 0;
   background: rgba(255, 255, 255, 0.02);
@@ -1816,32 +1792,7 @@ nav a:hover::after {
   padding: 0 24px;
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
-}
-
-.feature-card {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 32px 24px;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0, 172, 193, 0.1);
-  border-color: rgba(0, 172, 193, 0.3);
-}
-
-.card-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
-  display: block;
-}
+/* Feature card styles moved to components/features.css */
 
 .feature-card h3 {
   font-size: 20px;
@@ -1855,6 +1806,7 @@ nav a:hover::after {
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
+  flex: 1; /* Expands to fill available space for equal card heights */
 }
 
 /* CTA Section */
