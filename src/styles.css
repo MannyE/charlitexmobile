@@ -9,6 +9,7 @@
 @import './styles/seo.css';
 @import './styles/components/pricing.css';
 @import './styles/components/features.css';
+@import './styles/components/header.css';
 /* 
 body {
   @apply flex flex-col items-center justify-center h-screen w-screen bg-[#121212] text-white;
@@ -919,14 +920,9 @@ nav a:hover::after {
   font-size: 16px;
 }
 
+/* Mobile menu button removed - no longer needed */
 .mobile-menu-btn {
-  display: none;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 8px;
+  display: none !important; /* Completely hidden on all screen sizes */
 }
 
 /* Hero Section */
@@ -1416,9 +1412,7 @@ nav a:hover::after {
 }
 
 @media (max-width: 968px) {
-  .mobile-menu-btn {
-    display: block;
-  }
+  /* Mobile menu button removed */
 
   .hero-section {
     padding-top: 180px; /* Increase padding on tablet */
@@ -1927,9 +1921,7 @@ nav a:hover::after {
 }
 
 @media (max-width: 968px) {
-  .mobile-menu-btn {
-    display: block;
-  }
+  /* Mobile menu button removed */
 
   .hero-section {
     padding-top: 120px;

@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from '../../assets/logos/logo-blue.png';
 
-const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle }) => {
+const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle: _onMobileMenuToggle }) => {
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
   const handleAccountClick = () => {
-    alert('Account features coming soon! This will navigate to account management.');
+    setShowComingSoon(true);
   };
+
+  // Auto-hide the coming soon toast after 3 seconds
+  useEffect(() => {
+    if (showComingSoon) {
+      const timer = setTimeout(() => {
+        setShowComingSoon(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showComingSoon]);
 
   return (
     <header className="home-header">
@@ -18,18 +30,25 @@ const Header = ({ showMobileMenu: _showMobileMenu, onMobileMenuToggle }) => {
         </div>
 
         <div className="header-actions">
-          <button
-            className="my-account-btn"
-            onClick={handleAccountClick}>
-            <span className="account-icon">👤</span>
-            My Account
-          </button>
-
-          <button
-            className="mobile-menu-btn"
-            onClick={onMobileMenuToggle}>
-            <span className="menu-icon">☰</span>
-          </button>
+          <div className="account-button-container">
+            <button
+              className="my-account-btn"
+              onClick={handleAccountClick}>
+              <span className="account-icon">👤</span>
+              My Account
+            </button>
+            
+            {/* Coming Soon Toast */}
+            {showComingSoon && (
+              <div className="coming-soon-toast">
+                <div className="toast-content">
+                  <span className="toast-icon">🚀</span>
+                  <span className="toast-text">Coming Soon!</span>
+                  <span className="toast-subtext">Account features are in development</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

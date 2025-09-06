@@ -1,0 +1,114 @@
+/* Header Component Styles */
+
+/* Account Button Container */
+.account-button-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Coming Soon Toast */
+.coming-soon-toast {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: linear-gradient(135deg, #00acc1 0%, #26c6da 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 172, 193, 0.3);
+  z-index: 1000;
+  min-width: 280px;
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.coming-soon-toast::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #00acc1;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.toast-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.toast-text {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.toast-subtext {
+  font-size: 13px;
+  opacity: 0.9;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* Toast Animation */
+@keyframes toastSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .coming-soon-toast {
+    right: -10px;
+    min-width: 260px;
+    padding: 14px 18px;
+  }
+
+  .toast-text {
+    font-size: 15px;
+  }
+
+  .toast-subtext {
+    font-size: 12px;
+  }
+
+  .toast-icon {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .coming-soon-toast {
+    right: -20px;
+    min-width: 240px;
+    padding: 12px 16px;
+  }
+
+  .coming-soon-toast::before {
+    right: 30px;
+  }
+
+  .toast-text {
+    font-size: 14px;
+  }
+
+  .toast-subtext {
+    font-size: 11px;
+  }
+}
