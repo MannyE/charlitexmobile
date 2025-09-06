@@ -28,7 +28,7 @@ const PricingSection = ({ onOpenWaitlist }) => {
               <h3>Essentials</h3>
               <div className="price-container">
                 <div className="price">
-                  $15<span>/mo</span>
+                  $20<span>/mo</span>
                 </div>
                 <div className="price-description">Perfect for personal use</div>
               </div>

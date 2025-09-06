@@ -22,7 +22,7 @@ const HeroSection = ({ onOpenWaitlist }) => {
             Countries Worldwide
           </h1>
 
-          <p className="hero-description">Connect with your loved ones across the globe without breaking the bank. Our cutting-edge VoIP technology delivers crystal-clear international calls with unlimited minutes to over 155 countries at unbeatable prices starting from just $15/month.</p>
+          <p className="hero-description">Connect with your loved ones across the globe without breaking the bank. Our cutting-edge VoIP technology delivers crystal-clear international calls with unlimited minutes to over 155 countries at unbeatable prices starting from just $20/month.</p>
 
           <button
             className="subscribe-btn"
